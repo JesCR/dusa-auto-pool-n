@@ -206,3 +206,14 @@ It means the price of Y increased and the price of X decreased.
 It means also that the pool distribution shifted to the right.
 While removing, you will collect fees of both tokens.
 While adding, you will pay composition fees on X.
+
+
+## telegram notifications
+
+First you need to setup your own telegram bot, check https://core.telegram.org/bots/tutorial if you need help.
+
+Just fill the .env TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID with your own values.
+
+The relevant info (add/remove liquidity, profitability stats etc) will start to be forwarding to the telegram bot.
+
+If you want more or less info just add or remove the last "true" parameter in the console.log commands.

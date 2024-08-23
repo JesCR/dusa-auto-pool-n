@@ -1,5 +1,5 @@
 import { addLiquidity } from './add-liquidity';
-import { getClient, PUR } from './utils';
+import { getClient, PUR , sendTelegramHtml} from './utils';
 import { Client, IAccount } from '@massalabs/massa-web3';
 import {
   PairV2,
@@ -22,8 +22,38 @@ import { config } from 'dotenv';
 import BigNumber from 'bignumber.js';
 config();
 
-const CHAIN_ID = ChainId.MAINNET;
+const originalConsoleLog = console.log;
 
+
+console.log = function(...args) {
+  let sendToTelegram = false;
+
+  if (typeof args[args.length - 1] === 'boolean') {
+    sendToTelegram = args.pop();
+  }
+
+  const date = new Date();
+  const formattedDate = date.toISOString();
+
+  const formattedArgs = args.map(arg => {
+    if (typeof arg === 'object') {
+      return JSON.stringify(arg, null, 2);
+    }
+    return arg;
+  });
+
+  originalConsoleLog(formattedDate, ...formattedArgs);
+
+  if (sendToTelegram && process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+    const message = `<b>${formattedDate}:</b>\n` + formattedArgs.join(' ');
+    sendTelegramHtml(message)
+      .catch(error => {
+        originalConsoleLog('Error sending Telegram message:', error);
+      });
+  }
+};
+
+const CHAIN_ID = ChainId.MAINNET;
 const WMAS = _WMAS[CHAIN_ID];
 const USDC = _USDC[CHAIN_ID];
 const WETH = _WETH[CHAIN_ID];
@@ -66,6 +96,10 @@ async function autoLiquidity(
     account,
     pair,
   );
+
+  console.log(`\n-------------------START ${process.env.PAIR}-------------------`);
+  console.log(`Starting autoLiquidity process`);
+
   const totalSupplies = await pairContract.getSupplies(userPositionIds);
   const totalUserSupplies = totalSupplies.reduce((acc, curr) => acc + curr, 0n);
 
@@ -75,11 +109,13 @@ async function autoLiquidity(
     return;
   }
 
+
   const providingActiveBin = await activeBinInPosition(
     activeBinId,
     userPositionIds,
   );
   if (!providingActiveBin) {
+    console.log(`👀  Missed Active bin!!!`);
     const { feesCollectedEvent, withdrawEvents } = await removeLiquidity(
       binStep,
       client,
@@ -113,7 +149,7 @@ async function autoLiquidity(
       console.error('Error aggregating fees', error);
     }
   } else {
-    console.log('Active bin already in position');
+    console.log(`✅  Active bin in position!`);
   }
 }
 

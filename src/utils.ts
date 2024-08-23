@@ -100,3 +100,36 @@ export async function getBalance(
     (await client.publicApi().getAddresses([address]))[0].candidate_balance,
   );
 }
+
+
+export const sendTelegramHtml = async (text: string): Promise<void> => {
+  const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
+  const telegramChatID = process.env.TELEGRAM_CHAT_ID;
+
+  const url = `https://api.telegram.org/bot${telegramToken}/sendMessage`;
+  const body = JSON.stringify({
+    chat_id: telegramChatID,
+    text: text,
+    disable_web_page_preview: true,
+    parse_mode: "HTML"
+  });
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: body
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      console.error(`Error: ${responseData.description}`);
+    }
+
+  } catch (error) {
+    console.log('Error sending Telegram message: ', text);
+    console.error(error);
+  }
+};
+

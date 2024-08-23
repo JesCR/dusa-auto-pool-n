@@ -46,7 +46,7 @@ export async function increaseAllowance(
     `Allowing ${operatorAddress} to spend ${new TokenAmount(
       token,
       amount,
-    ).toSignificant(token.decimals)} ${token.symbol} on ${token.address}`,
+    ).toSignificant(token.decimals)} ${token.symbol} on ${token.address}`, true
   );
   const opId = await client.smartContracts().callSmartContract({
     fee: await client.publicApi().getMinimalFees(),
@@ -56,9 +56,9 @@ export async function increaseAllowance(
     parameter: new Args().addString(operatorAddress).addU256(amount),
   });
 
-  console.log(opId);
+  console.log(`OpId increaseAllowance https://www.massexplo.io/tx/${opId}`, true);
   await waitOp(client, opId, false);
-  console.log('Allowance increased (not final)');
+  console.log('Allowance increased (not final)', true);
 }
 
 export async function decreaseAllowance(
@@ -70,7 +70,7 @@ export async function decreaseAllowance(
     `Decreasing allowance of ${operatorAddress} by ${new TokenAmount(
       token,
       amount,
-    ).toSignificant(token.decimals)} ${token.symbol} on ${token.address}`,
+    ).toSignificant(token.decimals)} ${token.symbol} on ${token.address}`, true
   );
   const opId = await client.smartContracts().callSmartContract({
     fee: await client.publicApi().getMinimalFees(),
@@ -80,9 +80,9 @@ export async function decreaseAllowance(
     parameter: new Args().addString(operatorAddress).addU256(amount),
   });
 
-  console.log(opId);
+  console.log(`OpId decreaseAllowance https://www.massexplo.io/tx/${opId}`, true);
   await waitOp(client, opId, false);
-  console.log('Allowance increased (not final)');
+  console.log('Allowance increased (not final)', true);
 }
 
 export async function getAllowance(

@@ -96,7 +96,7 @@ export async function equilibrateBalances(
 
   // don't swap if the difference is low
   if (amountToSwap.raw < (totalValue * 7n) / 100n) {
-    console.log('Not swapping');
+    console.log('ℹ️ Low difference, not swapping', true);
     return;
   }
 

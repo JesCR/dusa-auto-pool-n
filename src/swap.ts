@@ -125,13 +125,13 @@ export async function swap(
   const router = new IRouter(LB_ROUTER_ADDRESS[CHAIN_ID], client);
 
   // execute swap
-  console.log(
-    `Swapping ${amountIn.toSignificant(inputToken.decimals)} ${
-      inputToken.symbol
-    } for ${outputToken.symbol}`,
-  );
+ 
   const txId = await router.swap(params);
-  console.log('txId swap', txId);
+  console.log(
+    `🔄 SWAPPING ${amountIn.toSignificant(inputToken.decimals)} ${
+      inputToken.symbol
+    } for ${outputToken.symbol}\nhttps://www.massexplo.io/tx/${txId}`, true
+  );
   const { status, events } = await waitOp(client, txId, false);
   console.log('status: ', status);
   let resultEvent: SwapEvent | undefined;
@@ -139,9 +139,9 @@ export async function swap(
     const data = l.data;
     if (data.startsWith('SWAP:')) {
       resultEvent = EventDecoder.decodeSwap(data);
-      console.log('SWAP: ', resultEvent);
+      console.log('SWAP: ', resultEvent, true);
     } else if (status === EOperationStatus.SPECULATIVE_ERROR) {
-      console.error('Error swapping: ', l);
+      console.error('Error swapping: ', l, true);
     }
   });
   return resultEvent;

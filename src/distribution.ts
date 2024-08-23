@@ -89,7 +89,7 @@ function main() {
     currentPrice: new BigNumber(120),
   });
 
-  console.log(distribution);
+  console.log(distribution, true);
 }
 
 // main();

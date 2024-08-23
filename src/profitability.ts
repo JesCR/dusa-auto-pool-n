@@ -38,7 +38,7 @@ const logFileTotalAcc = `${new Date().getTime()}${
 }_total_acc.log`;
 
 function pushInFile(fileName: string, value: string, label?: string) {
-  console.log(`${label || ''} ${value}`);
+  console.log(`ℹ️ ${label || ''} ${value}`, true);
   fs.appendFileSync(path.join('src', fileName), value + '\n');
 }
 
@@ -68,13 +68,13 @@ export async function profitability(
     compositionFees,
   );
   console.log(
-    'rewards X',
+    'ℹ️ Rewards X',
     `${new TokenAmount(tokenX, rewardsX).toSignificant(tokenX.decimals)} ${
       tokenX.symbol
     }`,
   );
   console.log(
-    'rewards Y',
+    'ℹ️ Rewards Y',
     `${new TokenAmount(tokenY, rewardsY).toSignificant(tokenY.decimals)} ${
       tokenY.symbol
     }`,
@@ -128,16 +128,16 @@ export async function profitability(
       0n,
     );
     console.log(
-      'withdrawAmountX',
+      'ℹ️ WithdrawAmountX',
       `${new TokenAmount(tokenX, withdrawAmountX).toSignificant(
         tokenX.decimals,
-      )} ${tokenX.symbol}`,
+      )} ${tokenX.symbol}`, true
     );
     console.log(
-      'withdrawAmountY',
+      'ℹ️ WithdrawAmountY',
       `${new TokenAmount(tokenY, withdrawAmountY).toSignificant(
         tokenY.decimals,
-      )} ${tokenY.symbol}`,
+      )} ${tokenY.symbol}`, true
     );
 
     let removedAmountY = 0n;
@@ -153,10 +153,10 @@ export async function profitability(
     }
     const totalRemoved = removedAmountY + withdrawAmountY;
     console.log(
-      'totalRemoved',
+      'ℹ️ TotalRemoved',
       `${new TokenAmount(tokenY, totalRemoved).toSignificant(
         tokenY.decimals,
-      )} ${tokenY.symbol}`,
+      )} ${tokenY.symbol}`, true
     );
 
     // get the added liquidity and convert into Y
@@ -173,16 +173,16 @@ export async function profitability(
       0n,
     );
     console.log(
-      'addedAmountX',
+      'ℹ️ AddedAmountX',
       `${new TokenAmount(tokenX, addedAmountX).toSignificant(
         tokenX.decimals,
-      )} ${tokenX.symbol}`,
+      )} ${tokenX.symbol}`, true
     );
     console.log(
-      'addedAmountY',
+      'ℹ️ AddedAmountY',
       `${new TokenAmount(tokenY, addedAmountY).toSignificant(
         tokenY.decimals,
-      )} ${tokenY.symbol}`,
+      )} ${tokenY.symbol}`, true
     );
 
     let addedY = 0n;
@@ -198,10 +198,10 @@ export async function profitability(
     }
     const totalAdded = addedY + addedAmountY;
     console.log(
-      'totalAdded',
+      'ℹ️ TotalAdded',
       `${new TokenAmount(tokenY, totalAdded).toSignificant(tokenY.decimals)} ${
         tokenY.symbol
-      }`,
+      }`, true
     );
 
     // log impermanent loss
@@ -212,14 +212,14 @@ export async function profitability(
       `${new TokenAmount(tokenY, impermanentLoss).toSignificant(
         tokenY.decimals,
       )} ${tokenY.symbol}`,
-      'impermanentLoss',
+      'ImpermanentLoss',
     );
     pushInFile(
       logFileILAcc,
       `${new TokenAmount(tokenY, totalIL).toSignificant(tokenY.decimals)} ${
         tokenY.symbol
       }`,
-      'totalIL',
+      'TotalIL',
     );
   }
 
@@ -230,7 +230,7 @@ export async function profitability(
     `${new TokenAmount(tokenY, total).toSignificant(tokenY.decimals)} ${
       tokenY.symbol
     }`,
-    'total',
+    'Total',
   );
 
   totalGlobal += total;
@@ -239,7 +239,7 @@ export async function profitability(
     `${new TokenAmount(tokenY, totalGlobal).toSignificant(tokenY.decimals)} ${
       tokenY.symbol
     }`,
-    'totalGlobal',
+    'TotalGlobal',
   );
 }
 
@@ -251,31 +251,31 @@ function totalRewards(
 ) {
   if (compositionFees) {
     console.log(
-      'composition fees X',
+      'ℹ️ Composition fees X',
       `${new TokenAmount(tokenX, compositionFees.activeFeeX).toSignificant(
         tokenX.decimals,
-      )} ${tokenX.symbol}`,
+      )} ${tokenX.symbol}`, true
     );
     console.log(
-      'composition fees Y',
+      'ℹ️ Composition fees Y',
       `${new TokenAmount(tokenY, compositionFees.activeFeeY).toSignificant(
         tokenY.decimals,
-      )} ${tokenY.symbol}`,
+      )} ${tokenY.symbol}`, true
     );
   }
 
   if (collectedFees) {
     console.log(
-      'collected fees X',
+      'ℹ️ Collected fees X',
       `${new TokenAmount(tokenX, collectedFees.amountX).toSignificant(
         tokenX.decimals,
-      )} ${tokenX.symbol}`,
+      )} ${tokenX.symbol}`, true
     );
     console.log(
-      'collected fees Y',
+      'ℹ️ Collected fees Y',
       `${new TokenAmount(tokenY, collectedFees.amountY).toSignificant(
         tokenY.decimals,
-      )} ${tokenY.symbol}`,
+      )} ${tokenY.symbol}`, true
     );
   }
 

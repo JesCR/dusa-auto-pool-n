@@ -15,7 +15,7 @@ import {
   LiquidityEvent,
 } from '@dusalabs/sdk';
 import { Client, EOperationStatus, IAccount } from '@massalabs/massa-web3';
-import { getClient, waitOp } from './utils';
+import { getClient, waitOp, sendTelegramHtml } from './utils';
 import { PAIR_TO_BIN_STEP } from './dusa-utils';
 import { increaseAllowanceIfNeeded } from './allowance';
 import { config } from 'dotenv';
@@ -105,17 +105,16 @@ export async function addLiquidity(
   );
 
   // add liquidity
-  console.log(
-    `===== Adding liquidity: ${tokenAmountA.toSignificant(
-      tokenAmountA.token.decimals,
-    )} ${tokenAmountA.token.symbol} and ${tokenAmountB.toSignificant(
-      tokenAmountB.token.decimals,
-    )} ${tokenAmountB.token.symbol}`,
-  );
+
   const opId = await new IRouter(router, client).add(params);
-  console.log('OpId add liquidity', opId);
+ 
+  console.log(
+    `➕  ${process.env.PAIR} ADDING LIQUIDITY\n${tokenAmountA.toSignificant(tokenAmountA.token.decimals,)} ${tokenAmountA.token.symbol} and ${tokenAmountB.toSignificant(tokenAmountB.token.decimals,)} ${tokenAmountB.token.symbol}\nhttps://www.massexplo.io/tx/${opId}`
+    , true
+  );
   const { status, events } = await waitOp(client, opId, false);
   console.log('status: ', status);
+
   let compositionFeeEvent: CompositionFeeEvent | undefined;
   const depositEvents: LiquidityEvent[] = [];
   events.map((l) => {
@@ -126,7 +125,7 @@ export async function addLiquidity(
       const depositEvent = EventDecoder.decodeLiquidity(data);
       depositEvents.push(depositEvent);
     } else if (status === EOperationStatus.SPECULATIVE_ERROR) {
-      console.error('Error adding liquidity: ', l);
+      console.error('Error adding liquidity: ', l, true);
     }
   });
 
@@ -141,8 +140,8 @@ async function main() {
 
   const pair = new PairV2(WETH, WMAS);
   const binStep = PAIR_TO_BIN_STEP['WETH-WMAS'];
-  console.log('token 0: ' + pair.tokenA.name);
-  console.log('token 1: ' + pair.tokenB.name);
+  console.log('token 0: ' + pair.tokenA.name, true);
+  console.log('token 1: ' + pair.tokenB.name, true);
 
   const { amountA, amountB } = await getAmountsToAdd(client, account, pair);
   const currentPrice = await getCurrentPrice(client, pair, binStep);

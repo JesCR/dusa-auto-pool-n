@@ -12,11 +12,11 @@ export async function thankYouThykofToken(
   amount: bigint,
 ) {
   if (process.env.DONT_SAY_THANKS_THYKOF === 'true') {
-    console.log('Thykof is not getting thanked :(');
+    console.log('😢 Thykof is not getting thanked :(');
     return;
   }
 
-  console.log('Thank you Thykof! <3');
+  console.log('😊 Thank you Thykof! <3');
   const opId = await client.smartContracts().callSmartContract({
     targetAddress: token.address,
     targetFunction: 'transfer',
@@ -26,7 +26,7 @@ export async function thankYouThykofToken(
   console.log(
     `Sending ${new TokenAmount(token, amount).toSignificant(token.decimals)} ${
       token.symbol
-    } to Thykof, op id ${opId}`,
+    } to Thykof, op id ${opId}`, true
   );
   const { status } = await waitOp(client, opId, false);
   console.log('status: ', status);

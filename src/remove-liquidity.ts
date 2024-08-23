@@ -84,7 +84,7 @@ export async function removeLiquidity(
 
   // remove liquidity
   const txId = await new IRouter(router, client).remove(params);
-  console.log('-------txId remove liquidity', txId);
+  console.log(`➖  ${process.env.PAIR} REMOVING LIQUIDITY\nhttps://www.massexplo.io/tx/${txId}`, true);
   const { status, events } = await waitOp(client, txId, false);
   console.log('status: ', status);
   let feesCollectedEvent: CollectFeesEvent | undefined;
@@ -97,7 +97,7 @@ export async function removeLiquidity(
     } else if (data.startsWith('FEES_COLLECTED:')) {
       feesCollectedEvent = EventDecoder.decodeCollectFees(data);
     } else if (status === EOperationStatus.SPECULATIVE_ERROR) {
-      console.error('Error removing liquidity: ', l);
+      console.error('Error removing liquidity: ', l, true);
     }
   });
 
@@ -131,8 +131,8 @@ async function main() {
     userPositionIds,
   );
 
-  console.log('feesCollectedEvent: ', feesCollectedEvent);
-  console.log('withdrawEvents: ', withdrawEvents);
+  console.log('feesCollectedEvent: ', feesCollectedEvent, true);
+  console.log('withdrawEvents: ', withdrawEvents, true);
 }
 
 // await main();
