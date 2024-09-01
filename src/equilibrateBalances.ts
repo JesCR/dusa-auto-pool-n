@@ -64,7 +64,7 @@ export async function getAmountsToAdd(
     amountB: new TokenAmount(tokenB, amountB),
   };
 }
-
+/* 
 export async function equilibrateBalances(
   client: Client,
   account: IAccount,
@@ -106,6 +106,111 @@ export async function equilibrateBalances(
 
   await swap(client, account, inputToken, outputToken, amountToSwap);
 }
+ */
+
+export async function equilibrateBalances(client: Client, account: IAccount, pair: PairV2, currentPrice: BigNumber) {
+  const tokenA = pair.tokenA;
+  const tokenB = pair.tokenB;
+
+  const { amountA, amountB } = await getAmountsToAdd(client, account, pair);
+  const balanceTokenA = amountA.raw;
+  const balanceTokenB = amountB.raw;
+
+
+  const balanceTokenAReal = new BigNumber(balanceTokenA).dividedBy(10 ** tokenA.decimals).toFixed(5);
+  const balanceTokenBReal = new BigNumber(balanceTokenB).dividedBy(10 ** tokenB.decimals).toFixed(5);
+  console.log(`WMAS Current Price: ${currentPrice}`, true);
+  //console.log(`balanceTokenA: ${balanceTokenA} (${tokenA.decimals} decimals)`)
+  //console.log(`balanceTokenB: ${balanceTokenB} (${tokenB.decimals} decimals)`)
+  console.log(`Balance TokenA: ${balanceTokenAReal} ${tokenA.symbol}`, true)
+  console.log(`Balance TokenB: ${balanceTokenBReal} ${tokenB.symbol}`, true)
+
+  /* const balanceTokenAInTokenB = new BigNumber(balanceTokenA.toString())
+      .multipliedBy(currentPrice)
+      .toFixed(0) */
+  const balanceTokenAInUSD = BigInt(
+    new BigNumber(balanceTokenA.toString())
+        .multipliedBy(currentPrice)
+        .toFixed(0),
+    );
+
+  const balanceTokenBInUSD = BigInt(
+    new BigNumber(balanceTokenB.toString())
+        .multipliedBy(currentPrice)
+        .toFixed(0),
+    );    
+
+  const balanceTokenAInUSDCReal = new BigNumber(balanceTokenAInUSD).dividedBy(10 ** 6).toFixed(5);
+  const balanceTokenBInUSDCReal = new BigNumber(balanceTokenBInUSD).dividedBy(10 ** 6).toFixed(5);
+  console.log(`Balance TokenB In USD: ${balanceTokenBInUSDCReal}`, true);
+  console.log(`Balance TokenA In USD: ${balanceTokenAInUSDCReal}`, true);
+
+
+  const totalValueInUSDC = balanceTokenAInUSD + balanceTokenBInUSD;
+  const halfValueInUSDC = totalValueInUSDC / 2n;
+  const totalValueInUSDCReal = new BigNumber(totalValueInUSDC).dividedBy(10 ** 6).toFixed(5);
+  const halfValueInUSDCReal = new BigNumber(halfValueInUSDC).dividedBy(10 ** 6).toFixed(5);
+
+  console.log(`Total value: ${totalValueInUSDCReal} ${tokenB.symbol}`, true);
+  console.log(`Half value: ${halfValueInUSDCReal} ${tokenB.symbol}`, true);
+
+  const higherBalanceToken = balanceTokenAInUSD > balanceTokenBInUSD ? tokenA : tokenB;
+  console.log(`Higher Balance Token: ${higherBalanceToken.symbol}`, true);
+  const excessValueInUSD = higherBalanceToken === tokenA 
+      ? balanceTokenAInUSD - halfValueInUSDC
+      : balanceTokenBInUSD - halfValueInUSDC;
+
+  const excessValueInUSDReal = new BigNumber(excessValueInUSD).dividedBy(10 ** 6).toFixed(5);
+  console.log(`Distance from halfvalue in Token B: ${excessValueInUSDReal} ${tokenB.symbol}`, true);
+
+  const bigNumberExcessValueInUSD = new BigNumber(excessValueInUSD.toString());
+  const result = bigNumberExcessValueInUSD.dividedBy(currentPrice);
+  const roundedResult = result.decimalPlaces(0, BigNumber.ROUND_HALF_UP);
+  const finalBigIntResult = BigInt(roundedResult.toString());
+  const finalBigIntResultReal = new BigNumber(finalBigIntResult).dividedBy(10 ** tokenA.decimals).toFixed(5);
+
+  console.log('bigNumberExcessValueInUSD: ',bigNumberExcessValueInUSD)
+  console.log('result: ',result)
+  console.log('roundedResult: ',roundedResult)
+  console.log('finalBigIntResult: ',finalBigIntResult)
+  console.log('finalBigIntResultReal: ',finalBigIntResultReal)
+
+  //console.log(`Excess value in Token A: ${finalBigIntResult}`);
+  console.log(`Distance from halfvalue in Token A: ${finalBigIntResultReal} ${tokenA.symbol}`, true);
+  
+  const amountToSwap = higherBalanceToken === tokenA
+      ? new TokenAmount(tokenA, finalBigIntResult)
+      : new TokenAmount(tokenB, excessValueInUSD);
+
+  console.log(`Amount to swap: ${amountToSwap.raw} (${higherBalanceToken.symbol})`, true);
+
+  
+  let balanceTokenBReal_1 = new BigNumber(balanceTokenBReal);  // balance en USDC, por ejemplo
+  let balanceTokenAInTokenBReal_2 = new BigNumber(balanceTokenAInTokenBReal);  // valor equivalente del otro token en USDC
+  let difference = balanceTokenBReal_1.minus(balanceTokenAInTokenBReal_2).abs();
+  console.log('difference: ', difference)
+  let total = balanceTokenBReal_1.plus(balanceTokenAInTokenBReal_2);
+  console.log('total: ', total)
+  let percentageDifference = difference.dividedBy(total).multipliedBy(100);
+  console.log('percentageDifference: ', percentageDifference)
+
+  if (percentageDifference > 5) {
+    console.log('ℹ️ Difference  > 5%, swapping!', true);
+  } else {
+      //console.log('La diferencia no es superior al 5%.');
+      console.log('ℹ️ Difference < 5%, not swapping!', true);
+      return false;
+  }
+  // Don't swap if the difference is low
+  /* if (new BigNumber(amountToSwap.raw).lt(totalValueInTokenB.multipliedBy(10 ** tokenB.decimals).multipliedBy(0.07).toFixed(0))) {
+      console.log('ℹ️ Low difference, not swapping', true);
+      return;
+    } */
+
+  const lowerBalanceToken = higherBalanceToken === tokenA ? tokenB : tokenA;
+  await swap(client, account, higherBalanceToken, lowerBalanceToken, amountToSwap);
+}
+
 
 export async function getCurrentPrice(
   client: Client,

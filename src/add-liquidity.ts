@@ -63,7 +63,7 @@ export async function addLiquidity(
     client,
   ).getReservesAndId();
 
-  const addLiquidityInput = await pair.addLiquidityParameters(
+  /* const addLiquidityInput = await pair.addLiquidityParameters(
     lbPair.LBPair,
     binStep,
     tokenAmountA,
@@ -80,7 +80,46 @@ export async function addLiquidity(
   }
   if (customDistribution.deltaIds.length > 1) {
     await equilibrateBalances(client, account, pair, prices.oldPrice);
+  } */
+
+  
+  const customDistribution = getCustomDistribution(prices);
+  if (customDistribution.deltaIds.length === 0) {
+    throw Error('abort adding liquidity');
   }
+
+  let amountA: BigNumber;
+  let amountB: BigNumber;
+
+  if (customDistribution.deltaIds.length > 1) {
+    // Equilibrate balances if necessary
+    const shouldRecalculate = await equilibrateBalances(client, account, pair, prices.oldPrice);
+    console.log('shouldRecalculate: ', shouldRecalculate)
+    
+    if (shouldRecalculate) {
+      // Wait for 10 seconds before proceeding
+      await new Promise(resolve => setTimeout(resolve, 10000));
+
+      const amounts = await getAmountsToAdd(client, account, pair);
+      amountA = amounts.amountA;
+      amountB = amounts.amountB;
+
+      tokenAmountA = new TokenAmount(pair.tokenA, amountA);
+      tokenAmountB = new TokenAmount(pair.tokenB, amountB);
+    }
+  }
+
+  // Prepare parameters for adding liquidity
+  const addLiquidityInput = await pair.addLiquidityParameters(
+    lbPair.LBPair,
+    binStep,
+    tokenAmountA,
+    tokenAmountB,
+    new Percent(BigInt(allowedAmountSlippage)),
+    new Percent(BigInt(allowedPriceSlippage)),
+    LiquidityDistribution.SPOT,
+    client,
+  );
 
   const params = pair.liquidityCallParameters({
     ...addLiquidityInput,

@@ -30,13 +30,19 @@ export async function getBinsData(
     lbPair.LBPair,
     client,
   ).getReservesAndId();
+
   const activeBinId = lbPairData.activeId;
+  console.log('activeBinId: ', activeBinId)
 
   const pairAddress = lbPair.LBPair;
+  //console.log('pairAddress: ', pairAddress)
 
   const pairContract = new ILBPair(pairAddress, client);
+  //console.log('pairContract: ', pairContract)
 
   const userPositionIds = await pairContract.getUserBinIds(account.address!);
+  console.log('userPositionIds: ', userPositionIds)
+
 
   return {
     activeBinId,
@@ -46,12 +52,32 @@ export async function getBinsData(
   };
 }
 
-export async function activeBinInPosition(
+/* export async function activeBinInPosition(
   activeBinId: number,
   userPositionIds: number[],
 ): Promise<boolean> {
   return userPositionIds.includes(activeBinId);
+} */
+
+export async function activeBinInPosition(
+  activeBinId: number,
+  userPositionIds: number[],
+): Promise<boolean> {
+  const length = userPositionIds.length;
+
+  if (length < 5) {
+    return false;
+  }
+
+  const start = Math.floor((length - 5) / 2);
+  const end = start + 5;
+
+  const centralElements = userPositionIds.slice(start, end);
+  console.log('centralElements: ', centralElements)
+
+  return centralElements.includes(activeBinId);
 }
+
 
 // Copied from https://github.com/dusaprotocol/sdk/blob/37951e65fde644cbdfcedc022700474d6343f983/src/constants/liquidityConfig.ts#L41
 /* export const wide = {
@@ -85,7 +111,7 @@ export async function activeBinInPosition(
     0.0392, 0.0392, 0.0392, 0.0392, 0.0392, 0.0196, 0, 0, 0, 0, 0,
   ].map((el) => parseEther(el.toString())),
 };
- */
+
 export const wide = {
   deltaIds: [
     -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5,
@@ -95,5 +121,20 @@ export const wide = {
   ].map((el) => parseEther(el.toString())),
   distributionY: [
     0.1818, 0.1818, 0.1818, 0.1818, 0.1818, 0.0909, 0, 0, 0, 0, 0,
+  ].map((el) => parseEther(el.toString())),
+};
+ */
+
+
+
+export const wide = {
+  deltaIds: [
+    -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5,
+  ],
+  distributionX: [
+    0, 0, 0, 0, 0, 0.196, 0.392, 0.392, 0.00667, 0.00666, 0.00666
+  ].map((el) => parseEther(el.toString())),
+  distributionY: [
+    0.00666, 0.00666, 0.00667, 0.392, 0.392, 0.196, 0, 0, 0, 0, 0
   ].map((el) => parseEther(el.toString())),
 };
