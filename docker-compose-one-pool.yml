@@ -4,7 +4,7 @@ services:
   pool:
     build:
       context: .
-    container_name: dusa-auto-pool
+    container_name: dusa-auto-pool-usdc
     volumes:
       - ./src:/src
     env_file:

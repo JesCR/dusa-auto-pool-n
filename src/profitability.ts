@@ -38,7 +38,6 @@ const logFileTotalAcc = `${new Date().getTime()}${
 }_total_acc.log`;
 
 function pushInFile(fileName: string, value: string, label?: string) {
-  console.log(`ℹ️ ${label || ''} ${value}`, true);
   fs.appendFileSync(path.join('src', fileName), value + '\n');
 }
 
@@ -131,13 +130,13 @@ export async function profitability(
       'ℹ️ WithdrawAmountX',
       `${new TokenAmount(tokenX, withdrawAmountX).toSignificant(
         tokenX.decimals,
-      )} ${tokenX.symbol}`, true
+      )} ${tokenX.symbol}`
     );
     console.log(
       'ℹ️ WithdrawAmountY',
       `${new TokenAmount(tokenY, withdrawAmountY).toSignificant(
         tokenY.decimals,
-      )} ${tokenY.symbol}`, true
+      )} ${tokenY.symbol}`
     );
 
     let removedAmountY = 0n;
@@ -156,7 +155,7 @@ export async function profitability(
       'ℹ️ TotalRemoved',
       `${new TokenAmount(tokenY, totalRemoved).toSignificant(
         tokenY.decimals,
-      )} ${tokenY.symbol}`, true
+      )} ${tokenY.symbol}`
     );
 
     // get the added liquidity and convert into Y
@@ -182,7 +181,7 @@ export async function profitability(
       'ℹ️ AddedAmountY',
       `${new TokenAmount(tokenY, addedAmountY).toSignificant(
         tokenY.decimals,
-      )} ${tokenY.symbol}`, true
+      )} ${tokenY.symbol}`
     );
 
     let addedY = 0n;
@@ -201,7 +200,7 @@ export async function profitability(
       'ℹ️ TotalAdded',
       `${new TokenAmount(tokenY, totalAdded).toSignificant(tokenY.decimals)} ${
         tokenY.symbol
-      }`, true
+      }`
     );
 
     // log impermanent loss
@@ -221,6 +220,7 @@ export async function profitability(
       }`,
       'TotalIL',
     );
+    console.log(`ℹ️ TotalIL ${new TokenAmount(tokenY, totalIL).toSignificant(tokenY.decimals,)} ${tokenY.symbol}`, true);
   }
 
   // #3 total
@@ -241,6 +241,7 @@ export async function profitability(
     }`,
     'TotalGlobal',
   );
+  console.log(`ℹ️ TotalGlobal ${new TokenAmount(tokenX, compositionFees.activeFeeX).toSignificant(tokenX.decimals,)} ${tokenX.symbol}`, true);
 }
 
 function totalRewards(
@@ -269,13 +270,13 @@ function totalRewards(
       'ℹ️ Collected fees X',
       `${new TokenAmount(tokenX, collectedFees.amountX).toSignificant(
         tokenX.decimals,
-      )} ${tokenX.symbol}`, true
+      )} ${tokenX.symbol}`, 
     );
     console.log(
       'ℹ️ Collected fees Y',
       `${new TokenAmount(tokenY, collectedFees.amountY).toSignificant(
         tokenY.decimals,
-      )} ${tokenY.symbol}`, true
+      )} ${tokenY.symbol}`, 
     );
   }
 

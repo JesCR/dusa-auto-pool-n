@@ -115,7 +115,7 @@ export async function equilibrateBalances(
 
 
   // don't swap if the difference is low
-  if (amountToSwap.raw < (totalValue * 5n) / 100n) {
+  if (amountToSwap.raw < (totalValue * 7n) / 100n) {
     console.log('ℹ️ Low difference, not swapping', true);
     return;
   }
@@ -127,104 +127,64 @@ export async function equilibrateBalances(
   console.log(`outputToken: ${outputToken.symbol}`)
 
   await swap(client, account, inputToken, outputToken, amountToSwap);
-} 
+} */
 
- */
-export async function equilibrateBalances(client: Client, account: IAccount, pair: PairV2, currentPrice: BigNumber) {
+  export async function equilibrateBalances(client: Client, account: IAccount, pair: PairV2, currentPrice: BigNumber) {
     const tokenA = pair.tokenA;
     const tokenB = pair.tokenB;
   
     const { amountA, amountB } = await getAmountsToAdd(client, account, pair);
     const balanceTokenA = amountA.raw;
     const balanceTokenB = amountB.raw;
-
-
+  
     const balanceTokenAReal = new BigNumber(balanceTokenA).dividedBy(10 ** tokenA.decimals).toFixed(5);
     const balanceTokenBReal = new BigNumber(balanceTokenB).dividedBy(10 ** tokenB.decimals).toFixed(5);
-    console.log(`WMAS Current Price: ${currentPrice}`, true);
-    //console.log(`balanceTokenA: ${balanceTokenA} (${tokenA.decimals} decimals)`)
-    //console.log(`balanceTokenB: ${balanceTokenB} (${tokenB.decimals} decimals)`)
-    console.log(`Balance TokenA: ${balanceTokenAReal} ${tokenA.symbol}`, true)
-    console.log(`Balance TokenB: ${balanceTokenBReal} ${tokenB.symbol}`, true)
+    console.log(`balanceTokenA: ${balanceTokenA}`)
+    console.log(`balanceTokenB: ${balanceTokenB}`)
+    console.log(`balanceTokenAReal: ${balanceTokenAReal} ${tokenA.symbol} (${tokenA.decimals} decimals)`)
+    console.log(`balanceTokenBReal: ${balanceTokenBReal} ${tokenB.symbol} (${tokenB.decimals} decimals)`)
 
-    /* const balanceTokenAInTokenB = new BigNumber(balanceTokenA.toString())
-        .multipliedBy(currentPrice)
-        .toFixed(0) */
-    const balanceTokenAInTokenB = BigInt(
-        new BigNumber(balanceTokenA.toString())
-            .multipliedBy(currentPrice)
-            .toFixed(0),
-        );
-    const balanceTokenAInTokenBReal = new BigNumber(balanceTokenAInTokenB).dividedBy(10 ** tokenB.decimals).toFixed(5);
-    //console.log(`balanceTokenAInTokenB: ${balanceTokenAInTokenB}`);
-    console.log(`Balance TokenA In TokenB: ${balanceTokenAInTokenBReal} ${tokenB.symbol}`, true);
-    
-    /* const totalValueInTokenB = balanceTokenAInTokenB.plus(
-      new BigNumber(balanceTokenB).dividedBy(new BigNumber(10).pow(tokenB.decimals))
-    ); */
+    // Convert balances to real values (dividing by 10**decimals)
+    const balanceTokenAInTokenB = new BigNumber(balanceTokenA.toString())
+      .dividedBy(10 ** tokenA.decimals)
+      .multipliedBy(currentPrice);
+    console.log(`balanceTokenAInTokenB: ${balanceTokenAInTokenB}`)
 
-    const totalValueInTokenB = balanceTokenAInTokenB + balanceTokenB;
-    const halfValueInTokenB = totalValueInTokenB / 2n;
-    const totalValueInTokenBReal = new BigNumber(totalValueInTokenB).dividedBy(10 ** tokenB.decimals).toFixed(5);
-    const halfValueInTokenBReal = new BigNumber(halfValueInTokenB).dividedBy(10 ** tokenB.decimals).toFixed(5);
+    const totalValueInTokenB = balanceTokenAInTokenB.plus(new BigNumber(balanceTokenB).dividedBy(10 ** tokenB.decimals));
+    const halfValueInTokenB = totalValueInTokenB.dividedBy(2);
+    console.log(`totalValueInTokenB: ${totalValueInTokenB}`)
+    console.log(`halfValueInTokenB: ${halfValueInTokenB}`)
+  
+    // Determine which token has a higher balance in terms of token B value
+    const higherBalanceToken = balanceTokenAInTokenB.isGreaterThan(new BigNumber(balanceTokenB).dividedBy(10 ** tokenB.decimals)) ? tokenA : tokenB;
+    console.log(`higherBalanceToken: ${higherBalanceToken.symbol}`)
 
-    //console.log(`Total value in Token B: ${totalValueInTokenB}`);
-    console.log(`Total value: ${totalValueInTokenBReal} ${tokenB.symbol}`, true);
-    //console.log(`Half value in Token B: ${halfValueInTokenB}`);
-    console.log(`Half value: ${halfValueInTokenBReal} ${tokenB.symbol}`, true);
+    // Define amountToSwap here
+    let amountToSwap;
 
-    const higherBalanceToken = balanceTokenAInTokenB > balanceTokenB ? tokenA : tokenB;
-    console.log(`Higher Balance Token: ${higherBalanceToken.symbol}`, true);
-    const excessValueInTokenB = higherBalanceToken === tokenA 
-        ? balanceTokenAInTokenB - halfValueInTokenB
-        : balanceTokenB - halfValueInTokenB;
-    const excessValueInTokenBReal = new BigNumber(excessValueInTokenB).dividedBy(10 ** tokenB.decimals).toFixed(5);
-
-    //console.log(`Excess value in Token B: ${excessValueInTokenB}`);
-    console.log(`Distance from halfvalue in Token B: ${excessValueInTokenBReal} ${tokenB.symbol}`, true);
-
-    const bigNumberExcessValueInTokenB = new BigNumber(excessValueInTokenB.toString());
-    const result = bigNumberExcessValueInTokenB.dividedBy(currentPrice);
-    const roundedResult = result.decimalPlaces(0, BigNumber.ROUND_HALF_UP);
-    const finalBigIntResult = BigInt(roundedResult.toString());
-    const finalBigIntResultReal = new BigNumber(finalBigIntResult).dividedBy(10 ** tokenA.decimals).toFixed(5);
-
-    //console.log(`Excess value in Token A: ${finalBigIntResult}`);
-    console.log(`Distance from halfvalue in Token A: ${finalBigIntResultReal} ${tokenA.symbol}`, true);
-    
-    const amountToSwap = higherBalanceToken === tokenA
-        ? new TokenAmount(tokenA, finalBigIntResult)
-        : new TokenAmount(tokenB, excessValueInTokenB);
-
-    console.log(`Amount to swap: ${amountToSwap.raw} (${higherBalanceToken.symbol})`, true);
-
-    
-    let balanceTokenBReal_1 = new BigNumber(balanceTokenBReal);  // balance en USDC, por ejemplo
-    let balanceTokenAInTokenBReal_2 = new BigNumber(balanceTokenAInTokenBReal);  // valor equivalente del otro token en USDC
-    let difference = balanceTokenBReal_1.minus(balanceTokenAInTokenBReal_2).abs();
-    console.log('difference: ', difference)
-    let total = balanceTokenBReal_1.plus(balanceTokenAInTokenBReal_2);
-    console.log('total: ', total)
-    let percentageDifference = difference.dividedBy(total).multipliedBy(100);
-    console.log('percentageDifference: ', percentageDifference)
-
-    if (percentageDifference > 5) {
-      console.log('ℹ️ Difference  > 5%, swapping!', true);
+    // Calculate the amount to swap to balance in token units
+    if (higherBalanceToken === tokenA) {
+      const excessInTokenB = balanceTokenAInTokenB.minus(halfValueInTokenB);
+      amountToSwap = new TokenAmount(tokenA, excessInTokenB.div(currentPrice).multipliedBy(10 ** tokenA.decimals).toFixed(0));
+      console.log(`amountToSwap: ${amountToSwap.toSignificant(tokenA.decimals)} ${tokenA.symbol}}`)
     } else {
-        //console.log('La diferencia no es superior al 5%.');
-        console.log('ℹ️ Difference < 5%, not swapping!', true);
-        return false;
+      const excessInTokenB = new BigNumber(balanceTokenB).dividedBy(10 ** tokenB.decimals).minus(halfValueInTokenB);
+      amountToSwap = new TokenAmount(tokenB, excessInTokenB.multipliedBy(10 ** tokenB.decimals).toFixed(0));
+      console.log(`amountToSwap: ${amountToSwap.toSignificant(tokenB.decimals)} ${tokenB.symbol}}`)
     }
+
     // Don't swap if the difference is low
-    /* if (new BigNumber(amountToSwap.raw).lt(totalValueInTokenB.multipliedBy(10 ** tokenB.decimals).multipliedBy(0.07).toFixed(0))) {
-        console.log('ℹ️ Low difference, not swapping', true);
-        return;
-      } */
+    if (new BigNumber(amountToSwap.raw).lt(totalValueInTokenB.multipliedBy(10 ** tokenB.decimals).multipliedBy(0.07).toFixed(0))) {
+      console.log('ℹ️ Low difference, not swapping', true);
+      return;
+    }
 
-    const lowerBalanceToken = higherBalanceToken === tokenA ? tokenB : tokenA;
-    await swap(client, account, higherBalanceToken, lowerBalanceToken, amountToSwap);
+    const inputToken = higherBalanceToken;
+    const outputToken = higherBalanceToken === tokenA ? tokenB : tokenA;
+
+    await swap(client, account, inputToken, outputToken, amountToSwap);
 }
-
+  
 
 export async function getCurrentPrice(
   client: Client,

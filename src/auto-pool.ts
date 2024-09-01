@@ -24,7 +24,6 @@ config();
 
 const originalConsoleLog = console.log;
 
-
 console.log = function(...args) {
   let sendToTelegram = false;
 
@@ -37,7 +36,10 @@ console.log = function(...args) {
 
   const formattedArgs = args.map(arg => {
     if (typeof arg === 'object') {
-      return JSON.stringify(arg, null, 2);
+      // Agrega una función de reemplazo para manejar BigInt en JSON.stringify
+      return JSON.stringify(arg, (key, value) =>
+        typeof value === 'bigint' ? value.toString() + 'n' : value  // Agrega 'n' al final para indicar que es un BigInt
+      , 2);
     }
     return arg;
   });
