@@ -198,6 +198,11 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
   let percentageDifference = (difference/total) * 100;
   console.log(`👀  ${process.env.PAIR}: percentageDifference: ${percentageDifference}`, true)
 
+
+  await new Promise(resolve => setTimeout(resolve, 100000));
+
+
+
   if (percentageDifference > 5) {
     console.log('ℹ️ ${process.env.PAIR}: Difference  > 5%, swapping!', true);
   } else {
