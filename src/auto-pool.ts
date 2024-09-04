@@ -106,7 +106,7 @@ async function autoLiquidity(
   const totalUserSupplies = totalSupplies.reduce((acc, curr) => acc + curr, 0n);
 
   if (totalUserSupplies === 0n) {
-    console.log("no liquidity, let's add some");
+    console.log(`no liquidity, let's add some`);
     await provideLiquidity(binStep, client, account, pair);
     return;
   }

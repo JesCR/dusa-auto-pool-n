@@ -101,11 +101,15 @@ export async function addLiquidity(
       await new Promise(resolve => setTimeout(resolve, 10000));
 
       const amounts = await getAmountsToAdd(client, account, pair);
-      amountA = amounts.amountA;
-      amountB = amounts.amountB;
+      console.log('Amounts from getAmountsToAdd: ', amounts);
+      console.log('Type of amountA: ', typeof amounts.amountA);
+      console.log('Type of amountB: ', typeof amounts.amountB);
+     
+      amountA = new BigNumber(amounts.amountA);
+      amountB = new BigNumber(amounts.amountB);
 
-      tokenAmountA = new TokenAmount(pair.tokenA, amountA);
-      tokenAmountB = new TokenAmount(pair.tokenB, amountB);
+      tokenAmountA = new TokenAmount(pair.tokenA, BigInt(amountA));
+      tokenAmountB = new TokenAmount(pair.tokenB, BigInt(amountB));
     }
   }
 

@@ -111,7 +111,7 @@ export const sendTelegramHtml = async (text: string): Promise<void> => {
     chat_id: telegramChatID,
     text: text,
     disable_web_page_preview: true,
-    parse_mode: "HTML"
+    parse_mode: 'HTML'
   });
 
   try {
@@ -124,7 +124,7 @@ export const sendTelegramHtml = async (text: string): Promise<void> => {
     const responseData = await response.json();
 
     if (!response.ok) {
-      console.error(`Error: ${responseData.description}`);
+      console.error(`Error: ${responseData.description} - MSG: ${text}`);
     }
 
   } catch (error) {

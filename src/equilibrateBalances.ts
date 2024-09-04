@@ -221,6 +221,10 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
         return;
       } */
 
+    //debug
+    //await new Promise(resolve => setTimeout(resolve, 1000000));
+
+
     const lowerBalanceToken = higherBalanceToken === tokenA ? tokenB : tokenA;
     await swap(client, account, higherBalanceToken, lowerBalanceToken, amountToSwap);
 
