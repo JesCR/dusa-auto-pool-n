@@ -116,34 +116,32 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
   const balanceTokenA = amountA.raw;
   const balanceTokenB = amountB.raw;
 
+  const currentPriceUSD = await getCurrentPriceUSD(client);
 
   const balanceTokenAReal = new BigNumber(balanceTokenA).dividedBy(10 ** tokenA.decimals).toFixed(5);
   const balanceTokenBReal = new BigNumber(balanceTokenB).dividedBy(10 ** tokenB.decimals).toFixed(5);
-  console.log(`WMAS Current Price: ${currentPrice}`, true);
-  //console.log(`balanceTokenA: ${balanceTokenA} (${tokenA.decimals} decimals)`)
-  //console.log(`balanceTokenB: ${balanceTokenB} (${tokenB.decimals} decimals)`)
-  console.log(`Balance TokenA: ${balanceTokenAReal} ${tokenA.symbol}`, true)
-  console.log(`Balance TokenB: ${balanceTokenBReal} ${tokenB.symbol}`, true)
+  console.log(`👀  ${process.env.PAIR}: WMAS Current Price: ${currentPriceUSD}`, true);
+  console.log(`👀  ${process.env.PAIR}: WETH Current Price: ${currentPrice}`, true);
+  console.log(`👀  ${process.env.PAIR}: Balance TokenA: ${balanceTokenAReal} ${tokenA.symbol}`, true)
+  console.log(`👀  ${process.env.PAIR}: Balance TokenB: ${balanceTokenBReal} ${tokenB.symbol}`, true)
 
-  /* const balanceTokenAInTokenB = new BigNumber(balanceTokenA.toString())
-      .multipliedBy(currentPrice)
-      .toFixed(0) */
   const balanceTokenAInUSD = BigInt(
     new BigNumber(balanceTokenA.toString())
         .multipliedBy(currentPrice)
+        .multipliedBy(currentPriceUSD)
         .toFixed(0),
     );
 
   const balanceTokenBInUSD = BigInt(
     new BigNumber(balanceTokenB.toString())
-        .multipliedBy(currentPrice)
+        .multipliedBy(currentPriceUSD)
         .toFixed(0),
     );    
 
   const balanceTokenAInUSDCReal = new BigNumber(balanceTokenAInUSD).dividedBy(10 ** 6).toFixed(5);
   const balanceTokenBInUSDCReal = new BigNumber(balanceTokenBInUSD).dividedBy(10 ** 6).toFixed(5);
-  console.log(`Balance TokenB In USD: ${balanceTokenBInUSDCReal}`, true);
-  console.log(`Balance TokenA In USD: ${balanceTokenAInUSDCReal}`, true);
+  console.log(`👀  ${process.env.PAIR}: Balance TokenB In USD: ${balanceTokenBInUSDCReal}`, true);
+  console.log(`👀  ${process.env.PAIR}: Balance TokenA In USD: ${balanceTokenAInUSDCReal}`, true);
 
 
   const totalValueInUSDC = balanceTokenAInUSD + balanceTokenBInUSD;
@@ -151,54 +149,60 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
   const totalValueInUSDCReal = new BigNumber(totalValueInUSDC).dividedBy(10 ** 6).toFixed(5);
   const halfValueInUSDCReal = new BigNumber(halfValueInUSDC).dividedBy(10 ** 6).toFixed(5);
 
-  console.log(`Total value: ${totalValueInUSDCReal} ${tokenB.symbol}`, true);
-  console.log(`Half value: ${halfValueInUSDCReal} ${tokenB.symbol}`, true);
+  console.log(`👀  ${process.env.PAIR}: Total value In USD: ${totalValueInUSDCReal}`, true);
+  console.log(`👀  ${process.env.PAIR}: Half value In USD: ${halfValueInUSDCReal}`, true);
 
   const higherBalanceToken = balanceTokenAInUSD > balanceTokenBInUSD ? tokenA : tokenB;
-  console.log(`Higher Balance Token: ${higherBalanceToken.symbol}`, true);
+  console.log(`👀  ${process.env.PAIR}: Higher Balance Token: ${higherBalanceToken.symbol}`, true);
   const excessValueInUSD = higherBalanceToken === tokenA 
       ? balanceTokenAInUSD - halfValueInUSDC
       : balanceTokenBInUSD - halfValueInUSDC;
 
   const excessValueInUSDReal = new BigNumber(excessValueInUSD).dividedBy(10 ** 6).toFixed(5);
-  console.log(`Distance from halfvalue in Token B: ${excessValueInUSDReal} ${tokenB.symbol}`, true);
+  console.log(`👀  ${process.env.PAIR}: Distance from halfvalue in USD: ${excessValueInUSDReal}`, true);
 
   const bigNumberExcessValueInUSD = new BigNumber(excessValueInUSD.toString());
-  const result = bigNumberExcessValueInUSD.dividedBy(currentPrice);
+  let tmpResult = new BigNumber(0);
+  if (balanceTokenAInUSD > balanceTokenBInUSD){
+    tmpResult = bigNumberExcessValueInUSD.dividedBy(currentPrice);
+  } else {
+    tmpResult = bigNumberExcessValueInUSD.dividedBy(currentPriceUSD);
+  }
+  const result = tmpResult //bigNumberExcessValueInUSD.dividedBy(currentPrice);
   const roundedResult = result.decimalPlaces(0, BigNumber.ROUND_HALF_UP);
   const finalBigIntResult = BigInt(roundedResult.toString());
   const finalBigIntResultReal = new BigNumber(finalBigIntResult).dividedBy(10 ** tokenA.decimals).toFixed(5);
 
-  console.log('bigNumberExcessValueInUSD: ',bigNumberExcessValueInUSD)
-  console.log('result: ',result)
-  console.log('roundedResult: ',roundedResult)
-  console.log('finalBigIntResult: ',finalBigIntResult)
-  console.log('finalBigIntResultReal: ',finalBigIntResultReal)
+  console.log(`👀  ${process.env.PAIR}: bigNumberExcessValueInUSD: ${bigNumberExcessValueInUSD}`, true)
+  console.log(`👀  ${process.env.PAIR}: result: ${result}`, true)
+  console.log(`👀  ${process.env.PAIR}: roundedResult: ${roundedResult}`, true)
+  console.log(`👀  ${process.env.PAIR}: finalBigIntResult: ${finalBigIntResult}`, true)
+  console.log(`👀  ${process.env.PAIR}: finalBigIntResultReal: ${finalBigIntResultReal}`, true)
 
   //console.log(`Excess value in Token A: ${finalBigIntResult}`);
-  console.log(`Distance from halfvalue in Token A: ${finalBigIntResultReal} ${tokenA.symbol}`, true);
+  console.log(`👀  ${process.env.PAIR}: Distance from halfvalue in Token A: ${finalBigIntResultReal} ${tokenA.symbol}`, true);
   
   const amountToSwap = higherBalanceToken === tokenA
       ? new TokenAmount(tokenA, finalBigIntResult)
       : new TokenAmount(tokenB, excessValueInUSD);
 
-  console.log(`Amount to swap: ${amountToSwap.raw} (${higherBalanceToken.symbol})`, true);
+  console.log(`👀  ${process.env.PAIR}: Amount to swap: ${amountToSwap.raw} (${higherBalanceToken.symbol})`, true);
 
   
-  let balanceTokenBReal_1 = new BigNumber(balanceTokenBReal);  // balance en USDC, por ejemplo
-  let balanceTokenAInTokenBReal_2 = new BigNumber(balanceTokenAInTokenBReal);  // valor equivalente del otro token en USDC
-  let difference = balanceTokenBReal_1.minus(balanceTokenAInTokenBReal_2).abs();
-  console.log('difference: ', difference)
-  let total = balanceTokenBReal_1.plus(balanceTokenAInTokenBReal_2);
-  console.log('total: ', total)
-  let percentageDifference = difference.dividedBy(total).multipliedBy(100);
-  console.log('percentageDifference: ', percentageDifference)
+  //let balanceTokenBReal_1 = new BigNumber(balanceTokenBReal);  // balance en USDC, por ejemplo
+  //let balanceTokenAInTokenBReal_2 = new BigNumber(balanceTokenAInTokenBReal);  // valor equivalente del otro token en USDC
+  let difference = Math.abs(balanceTokenAInUSDCReal - balanceTokenBInUSDCReal);
+  console.log(`👀  ${process.env.PAIR}: difference: ${difference}`, true)
+  let total = balanceTokenAInUSDCReal * balanceTokenBInUSDCReal;
+  console.log(`👀  ${process.env.PAIR}: total: ${total}`, true)
+  let percentageDifference = (difference/total) * 100;
+  console.log(`👀  ${process.env.PAIR}: percentageDifference: ${percentageDifference}`, true)
 
   if (percentageDifference > 5) {
-    console.log('ℹ️ Difference  > 5%, swapping!', true);
+    console.log('ℹ️ ${process.env.PAIR}: Difference  > 5%, swapping!', true);
   } else {
       //console.log('La diferencia no es superior al 5%.');
-      console.log('ℹ️ Difference < 5%, not swapping!', true);
+      console.log('ℹ️ ${process.env.PAIR}: Difference < 5%, not swapping!', true);
       return false;
   }
   // Don't swap if the difference is low
@@ -217,6 +221,21 @@ export async function getCurrentPrice(
   pair: PairV2,
   binStep: number,
 ) {
+  const lbPair = await pair.fetchLBPair(binStep, client, CHAIN_ID);
+
+  const lbPairData = await new ILBPair(
+    lbPair.LBPair,
+    client,
+  ).getReservesAndId();
+
+  return new BigNumber(Bin.getPriceFromId(lbPairData.activeId, binStep));
+}
+
+export async function getCurrentPriceUSD(
+  client: Client,
+) {
+  const pair = new PairV2(WMAS, USDC);
+  const binStep = PAIR_TO_BIN_STEP['WMAS-USDC'];
   const lbPair = await pair.fetchLBPair(binStep, client, CHAIN_ID);
 
   const lbPairData = await new ILBPair(

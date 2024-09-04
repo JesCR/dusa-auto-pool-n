@@ -32,7 +32,7 @@ export async function getBinsData(
   ).getReservesAndId();
 
   const activeBinId = lbPairData.activeId;
-  console.log('activeBinId: ', activeBinId)
+  //console.log('activeBinId: ', activeBinId)
 
   const pairAddress = lbPair.LBPair;
   //console.log('pairAddress: ', pairAddress)
@@ -41,7 +41,7 @@ export async function getBinsData(
   //console.log('pairContract: ', pairContract)
 
   const userPositionIds = await pairContract.getUserBinIds(account.address!);
-  console.log('userPositionIds: ', userPositionIds)
+  //console.log('userPositionIds: ', userPositionIds)
 
 
   return {
@@ -73,8 +73,10 @@ export async function activeBinInPosition(
   const end = start + 5;
 
   const centralElements = userPositionIds.slice(start, end);
-  console.log('centralElements: ', centralElements)
-
+  if (!centralElements.includes(activeBinId)) {
+    console.log(`👀  ${process.env.PAIR} Central Bins in distribtion: ${centralElements}`, true)
+    console.log(`👀  ${process.env.PAIR} ActiveBinId: ${activeBinId}`, true)
+  }
   return centralElements.includes(activeBinId);
 }
 
