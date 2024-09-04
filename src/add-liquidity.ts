@@ -88,8 +88,7 @@ export async function addLiquidity(
     throw Error('abort adding liquidity');
   }
 
-  let amountA: BigNumber;
-  let amountB: BigNumber;
+
 
   if (customDistribution.deltaIds.length > 1) {
     // Equilibrate balances if necessary
@@ -101,15 +100,14 @@ export async function addLiquidity(
       await new Promise(resolve => setTimeout(resolve, 10000));
 
       const amounts = await getAmountsToAdd(client, account, pair);
-      console.log('Amounts from getAmountsToAdd: ', amounts);
-      console.log('Type of amountA: ', typeof amounts.amountA);
-      console.log('Type of amountB: ', typeof amounts.amountB);
 
-      amountA = new BigNumber(amounts.amountA);
-      amountB = new BigNumber(amounts.amountB);
+      const amountANumerator = BigInt(amounts.amountA.numerator);
+      const amountBNumerator = BigInt(amounts.amountB.numerator);
+      console.log('amountANumerator: ', amountANumerator);
+      console.log('amountBNumerator: ', amountBNumerator);
 
-      tokenAmountA = new TokenAmount(pair.tokenA, BigInt(amountA));
-      tokenAmountB = new TokenAmount(pair.tokenB, BigInt(amountB));
+      tokenAmountA = new TokenAmount(pair.tokenA, amountANumerator);
+      tokenAmountB = new TokenAmount(pair.tokenB, amountBNumerator);
     }
   }
 
