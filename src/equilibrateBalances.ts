@@ -223,6 +223,8 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
 
     const lowerBalanceToken = higherBalanceToken === tokenA ? tokenB : tokenA;
     await swap(client, account, higherBalanceToken, lowerBalanceToken, amountToSwap);
+
+    return true;
 }
 
 
