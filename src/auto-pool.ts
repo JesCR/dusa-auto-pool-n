@@ -135,8 +135,8 @@ async function autoLiquidity(
       pair,
     );
 
-    await thankYouThykofToken(client, pair.tokenA, amountA.raw / 100_000n);
-    await thankYouThykofToken(client, pair.tokenB, amountB.raw / 100_000n);
+    //await thankYouThykofToken(client, pair.tokenA, amountA.raw / 100_000n);
+    //await thankYouThykofToken(client, pair.tokenB, amountB.raw / 100_000n);
 
     /* try {
       await profitability(
