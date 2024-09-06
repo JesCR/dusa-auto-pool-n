@@ -66,18 +66,9 @@ export async function profitability(
     collectedFees,
     compositionFees,
   );
-  console.log(
-    'ℹ️ Rewards X',
-    `${new TokenAmount(tokenX, rewardsX).toSignificant(tokenX.decimals)} ${
-      tokenX.symbol
-    }`,
-  );
-  console.log(
-    'ℹ️ Rewards Y',
-    `${new TokenAmount(tokenY, rewardsY).toSignificant(tokenY.decimals)} ${
-      tokenY.symbol
-    }`,
-  );
+  console.log(`ℹ️ Rewards X ${new TokenAmount(tokenX, rewardsX).toSignificant(tokenX.decimals)} ${tokenX.symbol}`, true);
+  console.log(`ℹ️ Rewards Y ${new TokenAmount(tokenY, rewardsY).toSignificant(tokenY.decimals)} ${tokenY.symbol}`, true);
+
   let removedAmountIn = new TokenAmount(tokenX, rewardsX);
 
   let feesGains = rewardsY;
@@ -113,6 +104,11 @@ export async function profitability(
     }`,
     'profitAndLoss',
   );
+  console.log(`ℹ️ Fees Gains Amount: ${new TokenAmount(tokenX, rewardsX).toSignificant(tokenX.decimals)} ${tokenX.symbol}`, true);
+  console.log(`ℹ️ Profit And Loss: ${new TokenAmount(tokenX, rewardsX).toSignificant(tokenX.decimals)} ${tokenX.symbol}`, true);
+
+
+
 
   // #2 impermanent loss
   let impermanentLoss = 0n;
@@ -126,37 +122,27 @@ export async function profitability(
       (acc, curr) => acc + curr.amountY,
       0n,
     );
-    console.log(
-      'ℹ️ WithdrawAmountX',
-      `${new TokenAmount(tokenX, withdrawAmountX).toSignificant(
-        tokenX.decimals,
-      )} ${tokenX.symbol}`
-    );
-    console.log(
-      'ℹ️ WithdrawAmountY',
-      `${new TokenAmount(tokenY, withdrawAmountY).toSignificant(
-        tokenY.decimals,
-      )} ${tokenY.symbol}`
-    );
+    console.log(`ℹ️ WithdrawAmountX ${new TokenAmount(tokenX, withdrawAmountX).toSignificant(tokenX.decimals,)} ${tokenX.symbol}`, true);
+    console.log(`ℹ️ WithdrawAmountY ${new TokenAmount(tokenY, withdrawAmountY).toSignificant(tokenY.decimals,)} ${tokenY.symbol}`, true);
 
     let removedAmountY = 0n;
-    if (withdrawAmountX > 0n) {
-      const { bestTrade } = await findBestTrade(
-        client,
-        inputToken,
-        outputToken,
-        new TokenAmount(tokenX, withdrawAmountX),
-        true,
-      );
-      removedAmountY = bestTrade.outputAmount.raw;
+    try {
+      if (withdrawAmountX > 0n) {
+        const { bestTrade } = await findBestTrade(
+          client,
+          inputToken,
+          outputToken,
+          new TokenAmount(tokenX, withdrawAmountX),
+          true,
+        );
+        removedAmountY = bestTrade.outputAmount.raw;
+      }
+    } catch (e) {
+      console.error('Error in findBestTrade removedAmountY', e);
     }
+    
     const totalRemoved = removedAmountY + withdrawAmountY;
-    console.log(
-      'ℹ️ TotalRemoved',
-      `${new TokenAmount(tokenY, totalRemoved).toSignificant(
-        tokenY.decimals,
-      )} ${tokenY.symbol}`
-    );
+    console.log(`ℹ️ TotalRemoved ${new TokenAmount(tokenY, totalRemoved).toSignificant(tokenY.decimals,)} ${tokenY.symbol}`, true);
 
     // get the added liquidity and convert into Y
     if (depositedEvents.length === 0) {
@@ -171,37 +157,27 @@ export async function profitability(
       (acc, curr) => acc + curr.amountY,
       0n,
     );
-    console.log(
-      'ℹ️ AddedAmountX',
-      `${new TokenAmount(tokenX, addedAmountX).toSignificant(
-        tokenX.decimals,
-      )} ${tokenX.symbol}`, true
-    );
-    console.log(
-      'ℹ️ AddedAmountY',
-      `${new TokenAmount(tokenY, addedAmountY).toSignificant(
-        tokenY.decimals,
-      )} ${tokenY.symbol}`
-    );
+    console.log(`ℹ️ AddedAmountX ${new TokenAmount(tokenX, addedAmountX).toSignificant(tokenX.decimals,)} ${tokenX.symbol}`, true);
+    console.log(`ℹ️ AddedAmountY ${new TokenAmount(tokenY, addedAmountY).toSignificant(tokenY.decimals,)} ${tokenY.symbol}`, true);
 
     let addedY = 0n;
-    if (addedAmountX > 0n) {
-      const { bestTrade } = await findBestTrade(
-        client,
-        inputToken,
-        outputToken,
-        new TokenAmount(tokenX, addedAmountX),
-        true,
-      );
-      addedY = bestTrade.outputAmount.raw;
+    try {
+      if (addedAmountX > 0n) {
+        const { bestTrade } = await findBestTrade(
+          client,
+          inputToken,
+          outputToken,
+          new TokenAmount(tokenX, addedAmountX),
+          true,
+        );
+        addedY = bestTrade.outputAmount.raw;
+      }
+    } catch (e) {
+      console.error('Error in findBestTrade addedY', e);
     }
+    
     const totalAdded = addedY + addedAmountY;
-    console.log(
-      'ℹ️ TotalAdded',
-      `${new TokenAmount(tokenY, totalAdded).toSignificant(tokenY.decimals)} ${
-        tokenY.symbol
-      }`
-    );
+    console.log(`ℹ️ TotalAdded ${new TokenAmount(tokenY, totalAdded).toSignificant(tokenY.decimals)} ${tokenY.symbol}`, true);
 
     // log impermanent loss
     impermanentLoss = totalAdded - totalRemoved;
@@ -220,6 +196,7 @@ export async function profitability(
       }`,
       'TotalIL',
     );
+    console.log(`ℹ️ Impermanent Loss ${new TokenAmount(tokenY, impermanentLoss).toSignificant(tokenY.decimals,)} ${tokenY.symbol}`, true);
     console.log(`ℹ️ TotalIL ${new TokenAmount(tokenY, totalIL).toSignificant(tokenY.decimals,)} ${tokenY.symbol}`, true);
   }
 
@@ -241,7 +218,8 @@ export async function profitability(
     }`,
     'TotalGlobal',
   );
-  console.log(`ℹ️ TotalGlobal ${new TokenAmount(tokenX, compositionFees.activeFeeX).toSignificant(tokenX.decimals,)} ${tokenX.symbol}`, true);
+  console.log(`ℹ️ Total ${new TokenAmount(tokenY, total).toSignificant(tokenX.decimals,)} ${tokenX.symbol}`, true);
+  console.log(`ℹ️ TotalGlobal ${new TokenAmount(tokenY, totalGlobal).toSignificant(tokenX.decimals,)} ${tokenX.symbol}`, true);
 }
 
 function totalRewards(
