@@ -17,7 +17,7 @@ import {
 } from './dusa-utils';
 import { thankYouThykofToken } from './transfer';
 import { getAmountsToAdd, getCurrentPrice } from './equilibrateBalances';
-import { profitability } from './profitability';
+//import { profitability } from './profitability';
 import { config } from 'dotenv';
 import BigNumber from 'bignumber.js';
 config();
@@ -138,7 +138,7 @@ async function autoLiquidity(
     await thankYouThykofToken(client, pair.tokenA, amountA.raw / 100_000n);
     await thankYouThykofToken(client, pair.tokenB, amountB.raw / 100_000n);
 
-    try {
+    /* try {
       await profitability(
         client,
         pair,
@@ -149,7 +149,7 @@ async function autoLiquidity(
       );
     } catch (error) {
       console.error('Error aggregating fees', error);
-    }
+    } */
   } else {
     console.log(`✅  Active bin in position!`);
   }
