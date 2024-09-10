@@ -93,7 +93,7 @@ export async function addLiquidity(
   if (customDistribution.deltaIds.length > 1) {
     // Equilibrate balances if necessary
     const shouldRecalculate = await equilibrateBalances(client, account, pair, prices.oldPrice);
-    console.log('shouldRecalculate: ', shouldRecalculate)
+    //console.log('shouldRecalculate: ', shouldRecalculate)
     
     if (shouldRecalculate) {
       // Wait for 10 seconds before proceeding
@@ -103,13 +103,35 @@ export async function addLiquidity(
 
       const amountANumerator = BigInt(amounts.amountA.numerator);
       const amountBNumerator = BigInt(amounts.amountB.numerator);
-      console.log('amountANumerator: ', amountANumerator);
-      console.log('amountBNumerator: ', amountBNumerator);
+      console.log('amountANumerator (WETH): ', amountANumerator);
+      console.log('amountBNumerator (MAS): ', amountBNumerator);
+
+      tokenAmountA = new TokenAmount(pair.tokenA, amountANumerator);
+      tokenAmountB = new TokenAmount(pair.tokenB, amountBNumerator);
+    }
+
+    // Equilibrate balances if necessary
+    const shouldRecalculateSecondPass = await equilibrateBalances(client, account, pair, prices.oldPrice);
+    //console.log('shouldRecalculate: ', shouldRecalculate)
+    
+    if (shouldRecalculateSecondPass) {
+      // Wait for 10 seconds before proceeding
+      await new Promise(resolve => setTimeout(resolve, 10000));
+
+      const amounts = await getAmountsToAdd(client, account, pair);
+
+      const amountANumerator = BigInt(amounts.amountA.numerator);
+      const amountBNumerator = BigInt(amounts.amountB.numerator);
+      console.log('amountANumerator (WETH): ', amountANumerator);
+      console.log('amountBNumerator (MAS): ', amountBNumerator);
 
       tokenAmountA = new TokenAmount(pair.tokenA, amountANumerator);
       tokenAmountB = new TokenAmount(pair.tokenB, amountBNumerator);
     }
   }
+
+  
+
 
   // Prepare parameters for adding liquidity
   const addLiquidityInput = await pair.addLiquidityParameters(

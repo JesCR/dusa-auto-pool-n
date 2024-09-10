@@ -139,7 +139,7 @@ export async function swap(
     const data = l.data;
     if (data.startsWith('SWAP:')) {
       resultEvent = EventDecoder.decodeSwap(data);
-      console.log('SWAP: ', resultEvent, true);
+      //console.log('SWAP: ', resultEvent);
     } else if (status === EOperationStatus.SPECULATIVE_ERROR) {
       console.error('Error swapping: ', l, true);
     }
