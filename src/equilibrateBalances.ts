@@ -224,11 +224,11 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
   console.log(`👀  ${process.env.PAIR}: percentageDifference: ${percentageDifference.toString()}`)
 
 
-  if (percentageDifference > 5) {
-    console.log(`ℹ️ ${process.env.PAIR}: Difference  > 5%, swapping!`);
+  if (percentageDifference > 3) {
+    console.log(`ℹ️ ${process.env.PAIR}: Difference  > 3%, swapping!`);
   } else {
       //console.log('La diferencia no es superior al 5%.');
-      console.log(`ℹ️ ${process.env.PAIR}: Difference < 5%, not swapping!`);
+      console.log(`ℹ️ ${process.env.PAIR}: Difference < 3%, not swapping!`);
       return false;
   }
 
