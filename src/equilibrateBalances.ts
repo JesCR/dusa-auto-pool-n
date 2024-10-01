@@ -51,10 +51,12 @@ export async function getAmountsToAdd(
   );
 
   let amountA = newBalanceTokenA - (newBalanceTokenA / 100n) * 1n;
+  console.log(`${process.env.PAIR}: amountA ${amountA} - maxTokenA ${maxTokenA}`);
   if (typeof maxTokenA === 'bigint' && maxTokenA < amountA) {
     amountA = maxTokenA;
   }
   let amountB = newBalanceTokenB - (newBalanceTokenB / 100n) * 1n;
+  console.log(`${process.env.PAIR}: amountB ${amountB} - maxTokenB ${maxTokenB}`);
   if (typeof maxTokenB === 'bigint' && maxTokenB < amountB) {
     amountB = maxTokenB;
   }
@@ -64,49 +66,6 @@ export async function getAmountsToAdd(
     amountB: new TokenAmount(tokenB, amountB),
   };
 }
-/* 
-export async function equilibrateBalances(
-  client: Client,
-  account: IAccount,
-  pair: PairV2,
-  currentPrice: BigNumber,
-) {
-  const tokenA = pair.tokenA;
-  const tokenB = pair.tokenB;
-
-  const { amountA, amountB } = await getAmountsToAdd(client, account, pair);
-  const balanceTokenA = amountA.raw;
-  const balanceTokenB = amountB.raw;
-
-  const balanceAWorthInB = BigInt(
-    new BigNumber(balanceTokenA.toString())
-      .multipliedBy(currentPrice)
-      .toFixed(0),
-  );
-  const totalValue = balanceTokenB + balanceAWorthInB;
-  const halfValue = totalValue / 2n;
-
-  const higherBalanceToken = balanceAWorthInB > balanceTokenB ? tokenA : tokenB;
-  const higherBalanceAmount =
-    higherBalanceToken === tokenA ? balanceAWorthInB : balanceTokenB;
-  const amountToSwap = new TokenAmount(
-    higherBalanceToken,
-    higherBalanceAmount - halfValue,
-  );
-
-  // don't swap if the difference is low
-  if (amountToSwap.raw < (totalValue * 7n) / 100n) {
-    console.log('ℹ️ Low difference, not swapping', true);
-    return;
-  }
-
-  const lowerBalanceToken = higherBalanceToken === tokenA ? tokenB : tokenA;
-  const inputToken = higherBalanceToken;
-  const outputToken = lowerBalanceToken;
-
-  await swap(client, account, inputToken, outputToken, amountToSwap);
-}
- */
 
 export async function equilibrateBalances(client: Client, account: IAccount, pair: PairV2, currentPrice: BigNumber) {
   const tokenA = pair.tokenA;
