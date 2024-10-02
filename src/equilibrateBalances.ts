@@ -51,10 +51,12 @@ export async function getAmountsToAdd(
   );
 
   let amountA = newBalanceTokenA - (newBalanceTokenA / 100n) * 1n;
+  console.log(`${process.env.PAIR}: amountA ${amountA} - maxTokenA ${maxTokenA}`);
   if (typeof maxTokenA === 'bigint' && maxTokenA < amountA) {
     amountA = maxTokenA;
   }
   let amountB = newBalanceTokenB - (newBalanceTokenB / 100n) * 1n;
+  console.log(`${process.env.PAIR}: amountB ${amountB} - maxTokenB ${maxTokenB}`);
   if (typeof maxTokenB === 'bigint' && maxTokenB < amountB) {
     amountB = maxTokenB;
   }
