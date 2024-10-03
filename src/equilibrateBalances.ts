@@ -51,12 +51,10 @@ export async function getAmountsToAdd(
   );
 
   let amountA = newBalanceTokenA - (newBalanceTokenA / 100n) * 1n;
-  console.log(`${process.env.PAIR}: amountA ${amountA} - maxTokenA ${maxTokenA}`);
   if (typeof maxTokenA === 'bigint' && maxTokenA < amountA) {
     amountA = maxTokenA;
   }
   let amountB = newBalanceTokenB - (newBalanceTokenB / 100n) * 1n;
-  console.log(`${process.env.PAIR}: amountB ${amountB} - maxTokenB ${maxTokenB}`);
   if (typeof maxTokenB === 'bigint' && maxTokenB < amountB) {
     amountB = maxTokenB;
   }
@@ -75,6 +73,9 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
   const balanceTokenA = amountA.raw;
   const balanceTokenB = amountB.raw;
 
+  const maxTokenAReal = new BigNumber(maxTokenA).dividedBy(10 ** tokenA.decimals).toFixed(5);
+  const maxTokenBReal = new BigNumber(maxTokenB).dividedBy(10 ** tokenA.decimals).toFixed(5);
+
   const currentPriceUSD = await getCurrentPriceUSD(client);
 
   const currentPriceWMASinUSDCReal = currentPriceUSD * 10 ** 3
@@ -88,8 +89,10 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
   console.log(`👀  ${process.env.PAIR}: WETH Current Price in WMAS Real: ${currentPriceWETHinWMASReal}`);
   console.log(`👀  ${process.env.PAIR}: WMAS Current Price in USDC Real: ${currentPriceWMASinUSDCReal}`);
   console.log(`👀  ${process.env.PAIR}: WETH Current Price in USDC Real: ${currentPriceWETHinUSDCReal}`);
-  console.log(`👀  ${process.env.PAIR}: Balance TokenA: ${balanceTokenAReal} ${tokenA.symbol}`)
-  console.log(`👀  ${process.env.PAIR}: Balance TokenB: ${balanceTokenBReal} ${tokenB.symbol}`)
+  console.log(`👀  ${process.env.PAIR}: Balance TokenA: ${balanceTokenA} -> ${balanceTokenAReal} ${tokenA.symbol}`)
+  console.log(`ℹ️ ${process.env.PAIR}: maxTokenA ${maxTokenA} -> ${maxTokenAReal}`);
+  console.log(`👀  ${process.env.PAIR}: Balance TokenB: ${balanceTokenB} -> ${balanceTokenBReal} ${tokenB.symbol}`)
+  console.log(`ℹ️ ${process.env.PAIR}: maxTokenA ${maxTokenA} -> ${maxTokenBReal}`);
 
   const balanceTokenAInUSD = BigInt(
     new BigNumber(balanceTokenA.toString())
