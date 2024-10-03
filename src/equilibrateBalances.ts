@@ -74,7 +74,7 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
   const balanceTokenB = amountB.raw;
 
   const maxTokenAReal = new BigNumber(maxTokenA).dividedBy(10 ** tokenA.decimals).toFixed(5);
-  const maxTokenBReal = new BigNumber(maxTokenB).dividedBy(10 ** tokenA.decimals).toFixed(5);
+  const maxTokenBReal = new BigNumber(maxTokenB).dividedBy(10 ** tokenB.decimals).toFixed(5);
 
   const currentPriceUSD = await getCurrentPriceUSD(client);
 
@@ -92,7 +92,7 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
   console.log(`👀  ${process.env.PAIR}: Balance TokenA: ${balanceTokenA} -> ${balanceTokenAReal} ${tokenA.symbol}`)
   console.log(`ℹ️ ${process.env.PAIR}: maxTokenA ${maxTokenA} -> ${maxTokenAReal}`);
   console.log(`👀  ${process.env.PAIR}: Balance TokenB: ${balanceTokenB} -> ${balanceTokenBReal} ${tokenB.symbol}`)
-  console.log(`ℹ️ ${process.env.PAIR}: maxTokenA ${maxTokenA} -> ${maxTokenBReal}`);
+  console.log(`ℹ️ ${process.env.PAIR}: maxTokenB ${maxTokenB} -> ${maxTokenBReal}`);
 
   const balanceTokenAInUSD = BigInt(
     new BigNumber(balanceTokenA.toString())
