@@ -89,7 +89,7 @@ export async function addLiquidity(
   }
 
 
-
+  // AQUI TENDRÍAMOS QUE VER SI SE PUEDE SOLUCIONAR EL TEMA CUANDO HAY MÄS BALANCE DE EL PERMITDO 
   if (customDistribution.deltaIds.length > 1) {
     const shouldRecalculate = await equilibrateBalances(client, account, pair, prices.oldPrice);
     
@@ -111,7 +111,7 @@ export async function addLiquidity(
     
     if (shouldRecalculateSecondPass) {
       await new Promise(resolve => setTimeout(resolve, 10000));
-      console.log('shouldRecalculate second pass: ', shouldRecalculateSecondPass)
+      console.log('After second pass:')
       const amounts = await getAmountsToAdd(client, account, pair);
 
       const amountANumerator = BigInt(amounts.amountA.numerator);

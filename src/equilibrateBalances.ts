@@ -109,9 +109,9 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
 
   const balanceTokenAInUSDCReal = new BigNumber(balanceTokenAInUSD).dividedBy(10 ** 6).toFixed(5);
   const balanceTokenBInUSDCReal = new BigNumber(balanceTokenBInUSD).dividedBy(10 ** 6).toFixed(5);
-  console.log(`👀  ${process.env.PAIR}: Balance TokenB In USD: ${balanceTokenBInUSDCReal}`, true);
-  console.log(`👀  ${process.env.PAIR}: Balance TokenA In USD: ${balanceTokenAInUSDCReal}`, true);
-
+  console.log(`👀  ${process.env.PAIR}: Balance TokenA (${tokenA.symbol}) In USD: ${balanceTokenAInUSDCReal}`, true);
+  console.log(`👀  ${process.env.PAIR}: Balance TokenB (${tokenB.symbol}) In USD: ${balanceTokenBInUSDCReal}`, true);
+  
 
   const totalValueInUSDC = balanceTokenAInUSD + balanceTokenBInUSD;
   const halfValueInUSDC = totalValueInUSDC / 2n;
