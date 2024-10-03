@@ -95,9 +95,6 @@ export async function swap(
   amountIn: TokenAmount,
   isExactIn = true,
 ) {
-  console.log(`inputToken: ${inputToken.symbol}`)
-  console.log(`outputToken: ${outputToken.symbol}`)
-  console.log(`amountIn: ${amountIn.raw}`)
   const { bestTrade } = await findBestTrade(
     client,
     inputToken,
@@ -131,7 +128,10 @@ export async function swap(
  
   const txId = await router.swap(params);
   console.log(
-    `🔄 SWAPPING ${amountIn.toSignificant(inputToken.decimals)} ${inputToken.symbol} for ${outputToken.symbol}\nhttps://www.massexplo.io/tx/${txId}`, true);
+    `🔄 SWAPPING ${amountIn.toSignificant(inputToken.decimals)} ${
+      inputToken.symbol
+    } for ${outputToken.symbol}\nhttps://www.massexplo.io/tx/${txId}`, true
+  );
   const { status, events } = await waitOp(client, txId, false);
   console.log('status: ', status);
   let resultEvent: SwapEvent | undefined;
@@ -139,7 +139,7 @@ export async function swap(
     const data = l.data;
     if (data.startsWith('SWAP:')) {
       resultEvent = EventDecoder.decodeSwap(data);
-      console.log('SWAP: ', resultEvent, true);
+      //console.log('SWAP: ', resultEvent);
     } else if (status === EOperationStatus.SPECULATIVE_ERROR) {
       console.error('Error swapping: ', l, true);
     }
@@ -149,10 +149,10 @@ export async function swap(
 
 async function main() {
   // the input token in the trade
-  const inputToken = WMAS;
+  const inputToken = USDC;
 
   // the output token in the trade
-  const outputToken = WETH;
+  const outputToken = WMAS;
 
   // user string input; in this case representing 20 USDC
   const typedValueIn = '20';

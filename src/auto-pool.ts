@@ -117,7 +117,10 @@ async function autoLiquidity(
     userPositionIds,
   );
   if (!providingActiveBin) {
-    console.log(`👀  Missed Active bin!!!`);
+    console.log(`.`, true);
+    console.log(`.`, true);
+    console.log(`.`, true);
+    console.log(`⚠️  Missed Active bin ⚠️`, true);
     const { feesCollectedEvent, withdrawEvents } = await removeLiquidity(
       binStep,
       client,

@@ -80,37 +80,50 @@ export async function addLiquidity(
   }
   if (customDistribution.deltaIds.length > 1) {
     await equilibrateBalances(client, account, pair, prices.oldPrice);
-  }
-  }); */
+  }*/
+
 
   const customDistribution = getCustomDistribution(prices);
   if (customDistribution.deltaIds.length === 0) {
     throw Error('abort adding liquidity');
   }
 
-  let amountA: BigNumber;
-  let amountB: BigNumber;
+
 
   if (customDistribution.deltaIds.length > 1) {
-    // Equilibrate balances if necessary
     const shouldRecalculate = await equilibrateBalances(client, account, pair, prices.oldPrice);
-    console.log('shouldRecalculate: ', shouldRecalculate)
     
     if (shouldRecalculate) {
-      // Wait for 10 seconds before proceeding
       await new Promise(resolve => setTimeout(resolve, 10000));
-
+      console.log('shouldRecalculate first pass: ', shouldRecalculate)
       const amounts = await getAmountsToAdd(client, account, pair);
-    
+
       const amountANumerator = BigInt(amounts.amountA.numerator);
       const amountBNumerator = BigInt(amounts.amountB.numerator);
-      console.log('amountANumerator: ', amountANumerator);
-      console.log('amountANumerator: ', amountANumerator);
+      console.log('amountANumerator (WMAS): ', amountANumerator);
+      console.log('amountBNumerator (USDC): ', amountBNumerator);
+
+      tokenAmountA = new TokenAmount(pair.tokenA, amountANumerator);
+      tokenAmountB = new TokenAmount(pair.tokenB, amountBNumerator);
+    }
+
+    const shouldRecalculateSecondPass = await equilibrateBalances(client, account, pair, prices.oldPrice);
+    
+    if (shouldRecalculateSecondPass) {
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      console.log('shouldRecalculate second pass: ', shouldRecalculateSecondPass)
+      const amounts = await getAmountsToAdd(client, account, pair);
+
+      const amountANumerator = BigInt(amounts.amountA.numerator);
+      const amountBNumerator = BigInt(amounts.amountB.numerator);
+      console.log('amountANumerator (WMAS): ', amountANumerator);
+      console.log('amountBNumerator (USDC): ', amountBNumerator);
 
       tokenAmountA = new TokenAmount(pair.tokenA, amountANumerator);
       tokenAmountB = new TokenAmount(pair.tokenB, amountBNumerator);
     }
   }
+
 
   // Prepare parameters for adding liquidity
   const addLiquidityInput = await pair.addLiquidityParameters(
@@ -177,11 +190,11 @@ export async function addLiquidity(
 async function main() {
   const { client, account } = await getClient(process.env.WALLET_SECRET_KEY!);
 
-  // const pair = new PairV2(WMAS, USDC);
-  // const binStep = PAIR_TO_BIN_STEP['WMAS-USDC'];
+  const pair = new PairV2(WMAS, USDC);
+  const binStep = PAIR_TO_BIN_STEP['WMAS-USDC'];
 
-  const pair = new PairV2(WETH, WMAS);
-  const binStep = PAIR_TO_BIN_STEP['WETH-WMAS'];
+  //const pair = new PairV2(WETH, WMAS);
+  //const binStep = PAIR_TO_BIN_STEP['WETH-WMAS'];
   console.log('token 0: ' + pair.tokenA.name, true);
   console.log('token 1: ' + pair.tokenB.name, true);
 
