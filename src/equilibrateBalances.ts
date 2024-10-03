@@ -74,7 +74,7 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
   const balanceTokenB = amountB.raw;
 
   const maxTokenAReal = new BigNumber(maxTokenA).dividedBy(10 ** tokenA.decimals).toFixed(5);
-  const maxTokenBReal = new BigNumber(maxTokenB).dividedBy(10 ** tokenA.decimals).toFixed(5);
+  const maxTokenBReal = new BigNumber(maxTokenB).dividedBy(10 ** tokenB.decimals).toFixed(5);
 
   const currentPriceUSD = await getCurrentPriceUSD(client);
 
@@ -89,28 +89,28 @@ export async function equilibrateBalances(client: Client, account: IAccount, pai
   console.log(`👀  ${process.env.PAIR}: Balance TokenA: ${balanceTokenA} -> ${balanceTokenAReal} ${tokenA.symbol}`)
   console.log(`ℹ️ ${process.env.PAIR}: maxTokenA ${maxTokenA} -> ${maxTokenAReal}`);
   console.log(`👀  ${process.env.PAIR}: Balance TokenB: ${balanceTokenB} -> ${balanceTokenBReal} ${tokenB.symbol}`)
-  console.log(`ℹ️ ${process.env.PAIR}: maxTokenA ${maxTokenA} -> ${maxTokenBReal}`);
+  console.log(`ℹ️ ${process.env.PAIR}: maxTokenB ${maxTokenB} -> ${maxTokenBReal}`);
 
 
-
+ 
 
   const balanceTokenAInUSD = BigInt(
-    new BigNumber(balanceTokenA.toString())
-        .multipliedBy(currentPrice)
-        .multipliedBy(currentPriceUSD)
+    new BigNumber(balanceTokenAReal.toString())
+        .multipliedBy(currentPriceWMASinUSDCReal)
+        .multipliedBy(10 ** 6)
         .toFixed(0),
     );
 
   const balanceTokenBInUSD = BigInt(
-    new BigNumber(balanceTokenB.toString())
-        .multipliedBy(currentPriceUSD)
+    new BigNumber(balanceTokenBReal.toString())
+        .multipliedBy(10 ** 6)
         .toFixed(0),
     );    
 
   const balanceTokenAInUSDCReal = new BigNumber(balanceTokenAInUSD).dividedBy(10 ** 6).toFixed(5);
   const balanceTokenBInUSDCReal = new BigNumber(balanceTokenBInUSD).dividedBy(10 ** 6).toFixed(5);
-  console.log(`👀  ${process.env.PAIR}: Balance TokenA (${tokenA.symbol}) In USD: ${balanceTokenAInUSDCReal}`, true);
-  console.log(`👀  ${process.env.PAIR}: Balance TokenB (${tokenB.symbol}) In USD: ${balanceTokenBInUSDCReal}`, true);
+  console.log(`👀  ${process.env.PAIR}: Balance TokenA (${tokenA.symbol}) In USD: ${balanceTokenAInUSD} -> ${balanceTokenAInUSDCReal}`, true);
+  console.log(`👀  ${process.env.PAIR}: Balance TokenB (${tokenB.symbol}) In USD: ${balanceTokenBInUSD} -> ${balanceTokenBInUSDCReal}`, true);
   
 
   const totalValueInUSDC = balanceTokenAInUSD + balanceTokenBInUSD;
