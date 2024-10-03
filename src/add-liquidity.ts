@@ -91,14 +91,11 @@ export async function addLiquidity(
 
 
   if (customDistribution.deltaIds.length > 1) {
-    // Equilibrate balances if necessary
     const shouldRecalculate = await equilibrateBalances(client, account, pair, prices.oldPrice);
-    //console.log('shouldRecalculate: ', shouldRecalculate)
     
     if (shouldRecalculate) {
-      // Wait for 10 seconds before proceeding
       await new Promise(resolve => setTimeout(resolve, 10000));
-
+      console.log('shouldRecalculate first pass: ', shouldRecalculate)
       const amounts = await getAmountsToAdd(client, account, pair);
 
       const amountANumerator = BigInt(amounts.amountA.numerator);
@@ -110,14 +107,11 @@ export async function addLiquidity(
       tokenAmountB = new TokenAmount(pair.tokenB, amountBNumerator);
     }
 
-    // Equilibrate balances if necessary
     const shouldRecalculateSecondPass = await equilibrateBalances(client, account, pair, prices.oldPrice);
-    //console.log('shouldRecalculate: ', shouldRecalculate)
     
     if (shouldRecalculateSecondPass) {
-      // Wait for 10 seconds before proceeding
       await new Promise(resolve => setTimeout(resolve, 10000));
-
+      console.log('shouldRecalculate second pass: ', shouldRecalculateSecondPass)
       const amounts = await getAmountsToAdd(client, account, pair);
 
       const amountANumerator = BigInt(amounts.amountA.numerator);
@@ -131,8 +125,6 @@ export async function addLiquidity(
   }
 
   
-
-
   // Prepare parameters for adding liquidity
   const addLiquidityInput = await pair.addLiquidityParameters(
     lbPair.LBPair,
