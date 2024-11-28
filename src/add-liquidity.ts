@@ -95,7 +95,7 @@ export async function addLiquidity(
     
     if (shouldRecalculate) {
       await new Promise(resolve => setTimeout(resolve, 10000));
-      console.log('shouldRecalculate first pass: ', shouldRecalculate)
+      //console.log('shouldRecalculate first pass: ', shouldRecalculate)
       const amounts = await getAmountsToAdd(client, account, pair);
 
       const amountANumerator = BigInt(amounts.amountA.numerator);
@@ -111,7 +111,7 @@ export async function addLiquidity(
     
     if (shouldRecalculateSecondPass) {
       await new Promise(resolve => setTimeout(resolve, 10000));
-      console.log('shouldRecalculate second pass: ', shouldRecalculateSecondPass)
+      //console.log('shouldRecalculate second pass: ', shouldRecalculateSecondPass)
       const amounts = await getAmountsToAdd(client, account, pair);
 
       const amountANumerator = BigInt(amounts.amountA.numerator);

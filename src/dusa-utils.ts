@@ -73,10 +73,10 @@ export async function activeBinInPosition(
   const end = start + 5;
 
   const centralElements = userPositionIds.slice(start, end);
-  if (!centralElements.includes(activeBinId)) {
+  /*   if (!centralElements.includes(activeBinId)) {
     console.log(`👀  ${process.env.PAIR} Central Bins in distribtion: ${centralElements}`, true)
     console.log(`👀  ${process.env.PAIR} ActiveBinId: ${activeBinId}`, true)
-  }
+  } */
   return centralElements.includes(activeBinId);
 }
 
